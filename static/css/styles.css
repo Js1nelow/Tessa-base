@@ -1,0 +1,499 @@
+:root{
+    --bg:#0f1114; --card:#171a1f; --card-2:#121419;
+    --text:#e9eef5; --muted:#a8b0bc; --stroke:#2a2f36;
+    --primary:#2ea7d1; --primary-2:#1e88b5; --success:#21c37a; --danger:#ff4d5e;
+    --shadow:0 8px 26px rgba(0,0,0,.35);
+    --glass:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+    --radius:16px;
+    --fz-base:15px; --fz-sm:13px; --fz-lg:17px; --fw-regular:500; --fw-bold:800;
+    --pad:14px; --gap:12px;
+
+    /* Темизация иконок (две стратегии для чёрных/белых исходников) */
+    --icon-filter-black-src: invert(0);                 /* тёмный src в светлой теме → чёрный */
+    --icon-filter-white-src: invert(1) brightness(.9);  /* белый src в светлой теме → чёрный */
+}
+html[data-theme="light"]{
+    --bg:#f5f7fb; --card:#fff; --card-2:#f0f2f6; --text:#101318; --muted:#616a78; --stroke:#e0e3ea;
+    --shadow:0 8px 26px rgba(0,0,0,.08);
+    --glass:linear-gradient(180deg, rgba(0,0,0,.03), rgba(0,0,0,.02));
+}
+html[data-theme="dark"]{
+    --icon-filter-black-src: invert(1) brightness(1.2); /* тёмный src в тёмной теме → белый */
+    --icon-filter-white-src: invert(0);                 /* белый src в тёмной теме → белый */
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+    margin:0; background:var(--bg); color:var(--text);
+    font:var(--fw-regular) var(--fz-base)/1.45 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial
+}
+img{display:block; max-width:100%}
+button{font:inherit; color:inherit; cursor:pointer; background:none; border:none}
+:focus-visible{
+    outline:2px solid color-mix(in oklab,var(--primary) 70%, transparent);
+    outline-offset:2px; border-radius:12px
+}
+
+/* ===== Header ===== */
+.app-header{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:10px 12px; background:var(--card); border-bottom:1px solid var(--stroke)
+}
+.icon-btn{width:36px; height:36px; border-radius:10px; display:grid; place-items:center}
+.logo{height:22px}
+.tier-img{width:22px; height:22px}
+
+/* ===== Sidebar ===== */
+.sidebar{
+    position:fixed; inset:0 auto 0 0; width:78vw; max-width:340px;
+    background:var(--card); border-right:1px solid var(--stroke);
+    transform:translateX(-100%); transition:.25s; z-index:60
+}
+.sidebar.open{transform:translateX(0)}
+.sidebar__head{display:flex; align-items:center; justify-content:space-between; padding:12px; border-bottom:1px solid var(--stroke)}
+.menu{padding:10px}
+.menu-item{
+    display:flex; gap:10px; align-items:center; width:100%;
+    padding:12px 10px; border:1px solid var(--stroke); border-radius:12px;
+    background:var(--glass); margin-bottom:10px
+}
+
+/* ===== Page ===== */
+.page{padding:clamp(10px,2.5vw,18px)}
+
+/* ===== Fields / Controls ===== */
+.controls{
+    display:grid; gap:var(--gap); margin:10px 0 16px;
+    transition:max-height .35s ease, opacity .2s ease, margin .25s ease
+}
+.controls.collapsed{max-height:0; overflow:hidden; opacity:0; margin-bottom:0}
+.ui-field__label{display:block; color:var(--muted); font-size:var(--fz-sm); margin:0 0 6px}
+.ui-field__box{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:12px 14px; border-radius:14px; border:1px solid var(--stroke); background:var(--card-2)
+}
+.ui-field--locked .ui-field__box{background:color-mix(in oklab, var(--card-2) 85%, #ffd56b 3%)}
+.ui-field__placeholder{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.badge{font-size:12px; font-weight:700; background:linear-gradient(180deg,#ffd56b,#f2b941); color:#222; padding:2px 8px; border-radius:999px; border:1px solid rgba(0,0,0,.15)}
+
+.primary-btn{
+    margin-top:2px; width:100%; padding:14px; border-radius:14px;
+    border:1px solid var(--primary-2);
+    background:linear-gradient(180deg,var(--primary),var(--primary-2)); color:#fff; font-weight:800
+}
+.primary-btn:disabled{opacity:.55; filter:saturate(.7)}
+
+/* ===== Signal Card (VIP-like) ===== */
+.vip-card{
+    background:var(--card); border:1px solid var(--stroke); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:var(--pad)
+}
+.vip-card__head{
+    display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;
+    padding-bottom:10px; border-bottom:1px solid var(--stroke); margin-bottom:12px
+}
+.vip-card__head .ttl{display:flex; align-items:center; gap:10px; min-width:0}
+.vip-card__head .ttl img{width:20px; height:20px; flex:0 0 20px; object-fit:contain}
+.signal-model{white-space:nowrap; font-size:13px; opacity:.9}
+
+/* Idle / Steps visibility */
+.idle{padding:12px; color:var(--muted)}
+.steps[hidden], .result[hidden], .idle[hidden]{display:none !important}
+
+/* ===== Steps ===== */
+.steps{display:grid; gap:10px}
+.step{
+    display:flex; align-items:center; gap:12px; border:1px solid var(--stroke); border-radius:14px;
+    background:var(--glass); padding:12px
+}
+.step__title{font-weight:var(--fw-bold)}
+.step__sub{font-size:var(--fz-sm); color:var(--muted)}
+.step__state{
+    margin-left:auto; width:22px; height:22px; border-radius:6px;
+    border:1px solid var(--stroke); background:rgba(255,255,255,.05);
+    position:relative; overflow:hidden
+}
+.step:not(.done) .step__state{
+    background:repeating-linear-gradient(-45deg,rgba(255,255,255,.06) 0 6px,rgba(255,255,255,.02) 6px 12px)
+}
+.step.done{
+    background:color-mix(in oklab, var(--success) 14%, transparent);
+    border-color:color-mix(in oklab, var(--success) 45%, var(--stroke))
+}
+.step.done .step__state{border-color:transparent; background:var(--success)}
+.step.done .step__state::after{
+    content:""; position:absolute; inset:5px 6px 6px 6px;
+    border:2px solid #fff; border-top-color:transparent; border-left-color:transparent;
+    transform:rotate(45deg); border-radius:2px
+}
+.progress{height:8px; border-radius:999px; overflow:hidden; margin-top:6px; background:rgba(255,255,255,.08); border:1px solid var(--stroke)}
+.progress__bar{
+    height:100%; width:0;
+    background:linear-gradient(90deg,#2ea7d1,#21c37a),
+    repeating-linear-gradient(45deg,rgba(255,255,255,.18) 0 8px,transparent 8px 16px);
+    transition: width .08s linear; /* плавнее и без рывков */
+}
+.progress__text{text-align:center; color:var(--muted); font-size:var(--fz-sm); margin-top:6px}
+
+/* ===== Result ===== */
+.result{display:grid; gap:14px; opacity:0; transform:translateY(8px); transition:.28s ease}
+.result.result-enter{opacity:1; transform:none}
+
+.dir-wrap{display:grid; place-items:center; margin:6px 0 2px}
+.dir-arrow{
+    width:92px; height:92px; border-radius:999px; border:2px solid currentColor; position:relative;
+    box-shadow:0 0 0 6px color-mix(in oklab,currentColor 18%,transparent)
+}
+.dir-arrow::after{
+    content:""; position:absolute; inset:18% 28% 18% 28%; background:currentColor;
+    clip-path:polygon(50% 0,0 60%,28% 60%,28% 100%,72% 100%,72% 60%,100% 60%)
+}
+.dir-arrow.up{color:var(--success)}
+.dir-arrow.down{color:var(--danger); transform:rotate(180deg)}
+.dir-text{font-size:34px; font-weight:900; letter-spacing:2px; text-transform:uppercase}
+.dir-text.up{color:var(--success)}
+.dir-text.down{color:var(--danger)}
+
+/* карточки-инфо и сетки */
+.info-grid{display:grid; gap:10px}
+.info-2x3{grid-template-columns:repeat(2,minmax(0,1fr))}
+.row-2col{grid-template-columns:repeat(2,minmax(0,1fr)); margin-top:4px}
+.risk-full{margin-top:6px}
+
+.info{border:1px solid var(--stroke); border-radius:14px; padding:10px 12px; background:var(--glass)}
+.info .key{font-size:var(--fz-sm); color:var(--muted); text-transform:uppercase; letter-spacing:.5px}
+.info .val{font-weight:var(--fw-bold); font-size:var(--fz-lg)}
+
+.badge-block{display:grid; place-items:center; background:var(--glass)}
+.badge-block .big{font-size:26px; font-weight:900}
+.badge-block .sub{font-size:var(--fz-sm); color:var(--muted); text-transform:uppercase; letter-spacing:.5px}
+
+/* ===== Reset / Actions ===== */
+.reset-wrap{display:grid; place-items:center; margin-top:12px}
+.reset-wrap[hidden]{display:none!important}
+.reset-btn{padding:10px 16px; border-radius:12px; background:transparent; border:1px dashed var(--stroke); color:var(--text)}
+.reset-wrap .actions{display:flex; gap:10px; justify-content:center}
+.repeat-btn{
+    padding:10px 14px; border-radius:12px; color:#fff; font-weight:800;
+    background:linear-gradient(180deg,var(--primary),var(--primary-2));
+    border:1px solid var(--primary-2)
+}
+
+/* ===== Modals (общие) ===== */
+.modal{position:fixed; inset:0; display:none; z-index:80}
+.modal.open{display:block}
+.modal__backdrop{position:absolute; inset:0; background:rgba(0,0,0,.5)}
+.modal__dialog{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    background:var(--card); border:1px solid var(--stroke); border-radius:16px;
+    box-shadow:var(--shadow); width:min(96%,900px); max-height:92vh; overflow:auto; padding:16px
+}
+.modal__title{font-weight:900; margin:0 0 12px}
+.modal__close{
+    display:block; margin:14px auto 4px; min-width:140px; text-align:center;
+    padding:10px 14px; border-radius:12px;
+    background:linear-gradient(180deg,var(--primary),var(--primary-2));
+    border:1px solid var(--primary-2); color:#fff; font-weight:800
+}
+
+/* ===== Instruments modal ===== */
+.modal__dialog--instr{width:min(96%,900px)}
+.instr__search{margin-bottom:10px}
+.search{
+    display:flex; align-items:center; gap:8px;
+    border:1px solid var(--stroke); border-radius:12px; padding:8px 10px; background:var(--glass)
+}
+.search input{flex:1; background:transparent; border:none; color:var(--text); outline:none}
+
+.instr__layout{display:grid; grid-template-columns:190px 1fr; gap:12px}
+.instr__cats{display:grid; gap:8px; position:relative; padding-bottom:10px; margin-bottom:10px}
+.cats-title{font-size:var(--fz-sm); letter-spacing:.8px; color:var(--muted)}
+.instr-cat{
+    padding:10px 12px; border-radius:12px; border:1px solid var(--stroke);
+    background:var(--glass); text-align:left
+}
+.instr-cat.is-active{outline:2px solid color-mix(in oklab,var(--primary) 45%,transparent)}
+
+.items{display:grid; gap:8px; max-height:60vh; overflow:auto}
+.instr-item{width:100%; text-align:left; border:1px solid var(--stroke); border-radius:12px; background:var(--glass); padding:12px}
+
+/* разделитель под категориями в стеке */
+.modal__dialog--instr .instr__cats::after{
+    content:""; display:none; height:1px; width:100%;
+    border-radius:1px;
+    background:linear-gradient(90deg,transparent 0%,
+    color-mix(in oklab, var(--stroke) 85%, transparent) 12%,
+    color-mix(in oklab, var(--stroke) 85%, transparent) 88%,
+    transparent 100%);
+    opacity:.9; margin-top:10px;
+}
+@media (max-width: 520px){
+    .modal__dialog--instr .instr__layout{grid-template-columns:1fr}
+    .modal__dialog--instr .instr__cats::after{display:block}
+    .modal__dialog--instr .instr__list{padding-top:6px}
+}
+
+/* ===== Expire modal ===== */
+.modal__dialog--exp{width:min(92%,460px)}
+.exp-list{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
+.exp-item{padding:12px; border-radius:12px; border:1px solid var(--stroke); background:var(--glass)}
+.exp-item.is-active{outline:2px solid color-mix(in oklab,var(--primary) 45%,transparent)}
+
+/* ===== Theme / Lang / Stats ===== */
+.modal__dialog--theme{width:min(92%,420px)}
+.theme-list{display:grid; gap:8px}
+.option-item{
+    display:flex; align-items:center; gap:10px;
+    border:1px solid var(--stroke); border-radius:12px; padding:12px 14px; background:var(--glass)
+}
+/* фиксированный размер иконок тем (в т.ч. светлой) */
+.modal__dialog--theme .option-item img{
+    width:18px; height:18px; flex:0 0 18px; object-fit:contain
+}
+
+.modal__dialog--lang{width:min(92%,420px)}
+.lang-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px}
+.lang-opt{display:flex; align-items:center; gap:10px; border:1px solid var(--stroke); border-radius:12px; padding:12px; background:var(--glass)}
+.lang-flag{width:24px; height:24px; border-radius:999px}
+
+.modal__dialog--stats{width:min(92%,420px)}
+.stats-rows{margin:6px}
+.stats-row{display:flex; justify-content:space-between; padding:8px}
+.key{color:var(--muted)} .val{font-weight:var(--fw-bold)}
+
+/* ===== Adaptive ===== */
+.info-2x3, .row-2col{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
+@media (max-width:360px){
+    .info-2x3, .row-2col{grid-template-columns:1fr !important;}
+}
+@media (max-width:520px){
+    .instr__layout{grid-template-columns:1fr}
+}
+
+/* ===== Model modal (карточки моделей) ===== */
+.modal__dialog--model{ width:min(92%, 420px); }
+.model-list{ display:grid; gap:10px; }
+.model-item{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%;
+    padding:12px 14px; border:1px solid var(--stroke); border-radius:12px; background:var(--glass);
+    text-align:left; font-weight:800;
+}
+.model-item.is-active{ outline:2px solid color-mix(in oklab, var(--primary) 45%, transparent); }
+.model-item:disabled, .model-item[disabled]{ opacity:.55; filter:saturate(.7); cursor:not-allowed; }
+.model-item__name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.model-item__tag{
+    font-size:12px; font-weight:900; padding:2px 8px; border-radius:999px; color:#222;
+    background:linear-gradient(180deg,#ffd56b,#f2b941); border:1px solid rgba(0,0,0,.15);
+}
+
+/* Locked categories (Инструменты) */
+.instr-cat.is-locked{ opacity:.55; position:relative; }
+.instr-cat.is-locked::after{
+    content:"🔒"; position:absolute; right:10px; top:50%; transform:translateY(-50%);
+    font-size:14px; opacity:.8;
+}
+
+/* ===== VIP Info modal ===== */
+.modal__dialog--vip{ width:min(92%,520px) }
+.vipinfo-hero{ display:flex; align-items:center; justify-content:center; gap:12px; margin:-2px 0 8px; }
+.vipinfo-ic{ width:58px; height:58px; object-fit:contain; }
+.vipinfo-arr{ width:28px; height:28px; opacity:.8 }
+.vipinfo-note{ margin:6px 2px 12px; color:var(--muted); font-size:14px; line-height:1.45; text-align:center; }
+.vipinfo-list{ display:grid; gap:10px }
+.vipinfo-item{
+    padding:12px 14px; border-radius:14px; border:1px solid var(--stroke); background:var(--glass); font-weight:500;
+}
+/* Центруем заголовок в VIP-модалке */
+#vipInfoModal .modal__title, .modal__dialog--vip .modal__title{
+    text-align:center; margin:6px 0 10px; width:100%; display:block;
+}
+
+/* === Themed icons classes (использование на <img>) === */
+/* Для ЧЁРНОГО исходника (обычный случай): */
+img.icon-auto-filter{ filter: var(--icon-filter-black-src); transition: filter .2s ease; }
+/* Для БЕЛОГО исходника: */
+img.icon-auto-filter--white{ filter: var(--icon-filter-white-src); transition: filter .2s ease; }
+/* Inline SVG, если используешь: */
+/* .icon-svg { color: var(--text); fill: currentColor; } */
+
+/* ===================== THEMED MONO ICONS ===================== */
+/* Чёрные исходники (png/svg) → в тёмной теме становятся белыми */
+html[data-theme="dark"]  img.icon-src-black { filter: invert(1) brightness(1.1) contrast(1.05); }
+html[data-theme="light"] img.icon-src-black { filter: none; }
+
+/* Белые исходники (png/svg) → в светлой теме становятся чёрными */
+html[data-theme="light"] img.icon-src-white { filter: invert(1) brightness(.0) contrast(1.1); }
+html[data-theme="dark"]  img.icon-src-white { filter: none; }
+
+/* Единый размер для кнопок в хедере и сайдбаре */
+.icon-btn img{ width:20px; height:20px; display:block }
+.menu-item img{ width:18px; height:18px; display:block }
+
+/* (опц.) слегка приглушим иконки в сайдбаре, но оставим читаемыми */
+.menu-item img{ opacity:.9 }
+
+/* базовая геометрия всех кнопок иконок в хедере */
+.app-header .icon-btn{
+    width:36px; height:36px;            /* hitbox остаётся прежним */
+    display:grid; place-items:center;
+    border-radius:10px;
+    --icon-size: 18px;                   /* базовый размер пиктограмм */
+}
+
+/* картинка/иконка внутри */
+.app-header .icon-btn > img,
+.app-header .icon-btn > svg{
+    width:var(--icon-size);
+    height:var(--icon-size);
+    object-fit:contain;
+}
+
+/* ТОЛЬКО правая иконка — больше */
+#rightIconBtn{ --icon-size: 30px; }    /* подберите 24–30px как нравится */
+
+/* === ШАГИ: состояния + иконки ===================================== */
+.step {
+    position: relative;
+    transition: border-color .25s, background-color .25s, filter .25s;
+}
+.step.is-active{
+    border-color: color-mix(in oklab, var(--success) 45%, var(--stroke));
+    background: color-mix(in oklab, var(--success) 10%, transparent);
+    filter: saturate(1.05);
+}
+.step.is-next{
+    border-color: color-mix(in oklab, var(--primary) 50%, var(--stroke));
+    background: color-mix(in oklab, var(--primary) 8%, transparent);
+}
+.step.is-future{
+    opacity: .9;
+}
+.step.is-done{
+    border-color: color-mix(in oklab, var(--success) 55%, var(--stroke));
+    background: color-mix(in oklab, var(--success) 16%, transparent);
+}
+
+/* Квадратик состояния справа — используем как маску под иконку */
+.step__state{
+    position: relative;
+    isolation: isolate;
+    width:22px; height:22px; border-radius:6px;
+    border:1px solid var(--stroke);
+    background: rgba(255,255,255,.03);
+    overflow: hidden;
+}
+/* сама иконка через mask: подставляется из JS в --ic-url */
+.step__state::before{
+    content:"";
+    position:absolute; inset:3px;
+    background: currentColor;
+    -webkit-mask: var(--ic-url) center/contain no-repeat;
+    mask: var(--ic-url) center/contain no-repeat;
+    opacity:.95; transition: transform .18s ease, opacity .18s ease;
+}
+.step.is-active .step__state{ color: var(--success); border-color: color-mix(in oklab, var(--success) 45%, var(--stroke)); }
+.step.is-next   .step__state{ color: var(--primary); border-color: color-mix(in oklab, var(--primary) 45%, var(--stroke)); }
+.step.is-future .step__state{ color: color-mix(in oklab, var(--muted) 82%, #888); }
+.step.is-done   .step__state{
+    color: #fff;
+    background: var(--success);
+    border-color: transparent;
+}
+.step.is-done .step__state::before{ opacity:1; transform: scale(1.02); }
+
+/* Прогресс-бар — плавная заливка + подпись */
+.progress__bar{
+    height:100%; width:0;
+    background:
+            linear-gradient(90deg,#2ea7d1,#21c37a),
+            repeating-linear-gradient(45deg,rgba(255,255,255,.18) 0 8px,transparent 8px 16px);
+    transition: width .08s linear;
+}
+.progress__text{
+    text-align:center; color:var(--muted); font-size:var(--fz-sm); margin-top:6px;
+    min-height: 1.2em; /* чтобы подпись не прыгала */
+}
+
+/* === СТРЕЛКА результата: свечение + пульс ========================= */
+@keyframes pulseRing {
+    0%   { opacity:.35; transform: translate(-50%,-50%) scale(1); }
+    70%  { opacity:.05; transform: translate(-50%,-50%) scale(1.35); }
+    100% { opacity:0;   transform: translate(-50%,-50%) scale(1.55); }
+}
+.dir-wrap{ display:grid; place-items:center; margin:8px 0 2px; }
+.dir-arrow{
+    --ring: currentColor;
+    position:relative;
+    width:98px; height:98px; border-radius:999px;
+    border:2px solid currentColor;
+    box-shadow:
+            0 0 0 6px color-mix(in oklab, currentColor 18%, transparent),
+            0 6px 18px color-mix(in oklab, currentColor 28%, transparent);
+    background:
+            radial-gradient(60% 60% at 50% 40%, color-mix(in oklab,currentColor 15%, transparent), transparent 60%),
+            transparent;
+}
+/* пульсирующее кольцо */
+.dir-arrow::before{
+    content:"";
+    position:absolute; left:50%; top:50%;
+    width:110%; height:110%; border-radius:999px;
+    background: radial-gradient(closest-side, var(--ring), transparent 70%);
+    transform: translate(-50%,-50%);
+    animation: pulseRing 1.6s ease-out infinite;
+    pointer-events:none; mix-blend-mode: screen;
+    opacity:.25;
+}
+/* сам треугольник */
+.dir-arrow::after{
+    content:"";
+    position:absolute; inset:18% 26%;
+    background: currentColor;
+    clip-path: polygon(50% 0, 0 60%, 28% 60%, 28% 100%, 72% 100%, 72% 60%, 100% 60%);
+}
+.dir-arrow.up   { color: var(--success); }
+.dir-arrow.down { color: var(--danger); transform: rotate(180deg); }
+
+.dir-text{
+    font-size:34px; font-weight:900; letter-spacing:2px; text-transform:uppercase;
+    text-shadow: 0 0 18px color-mix(in oklab,currentColor 35%, transparent);
+}
+.dir-text.up{ color: var(--success); }
+.dir-text.down{ color: var(--danger); }
+
+/* индикатор справа */
+.step__state{
+    margin-left:auto; width:22px; height:22px; border-radius:50%;
+    border:1px solid var(--stroke); background:var(--card-2);
+    position:relative; overflow:hidden;
+}
+
+/* активный шаг → спиннер */
+.step__state.is-spinner{
+    background:transparent; border-color:transparent;
+}
+.step__state.is-spinner::before{
+    content:""; box-sizing:border-box; position:absolute; inset:0;
+    border-radius:50%;
+    border:2px solid color-mix(in oklab, var(--primary) 70%, transparent);
+    border-top-color: transparent; border-right-color: transparent;
+    animation: spin .7s linear infinite;
+}
+
+/* завершённый шаг → зелёная галочка */
+.step__state.is-check{
+    background:var(--success); border-color:var(--success);
+}
+.step__state.is-check::after{
+    content:""; position:absolute; inset:5px 6px 6px 6px;
+    border:2px solid #fff;                 /* рисуем «птичку» линиями */
+    border-top-color:transparent;
+    border-left-color:transparent;
+    transform:rotate(45deg);
+    border-radius:2px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
